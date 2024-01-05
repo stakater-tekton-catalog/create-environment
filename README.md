@@ -1,2 +1,15 @@
-# create-environment
-A tekton task for create-environment
+# Stakater Cluster Task for Creating DTE
+
+## Local Development
+
+### Install
+
+```
+tilt up
+```
+
+### Teardown
+
+```
+tilt down
+```
