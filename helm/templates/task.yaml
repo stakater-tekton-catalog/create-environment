@@ -33,7 +33,7 @@ spec:
       name: IMAGE_TAG
       type: string
     - description: repository where the image is located
-      name: IMAGE_REGISTRY
+      name: IMAGE_REGISTRY_URL
       type: string
       default: "NA"
     - default: 'false'
