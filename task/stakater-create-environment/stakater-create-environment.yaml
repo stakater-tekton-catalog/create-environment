@@ -5,7 +5,7 @@ kind: Task
 metadata:
   name: stakater-create-environment
   labels:
-    app.kubernetes.io/version: "1.0.7"
+    app.kubernetes.io/version: "0.0.17"
 spec:
   description: >-
     Create an Environment CR based on details found within the.tronador.yaml
@@ -34,9 +34,10 @@ spec:
     - description: tag of the image to create
       name: IMAGE_TAG
       type: string
-    - description: repostitory where the image is located
-      name: IMAGE_REPO
+    - description: repository where the image is located
+      name: IMAGE_REGISTRY
       type: string
+      default: "NA"
     - default: 'false'
       description: >-
         whether to deploy environment on cluster or not (make sure service
@@ -59,13 +60,23 @@ spec:
     - env:
         - name: WORKSPACE_REPO_TOKEN_BOUND
           value: $(workspaces.repo-token.bound)
+        - name: IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: docker-reg-creds
+              key: url
+              optional: true
       args:
         - '-c'
         - |
           set -e
           if [ $(params.PR_NUMBER) != "NA" ]; then
             mkdir $(workspaces.output.path)/environment-workspace
-            echo "{\"APPLICATION_IMAGE_NAME\":\"$(params.IMAGE_REPO)\",\"APPLICATION_IMAGE_TAG\":\"$(params.IMAGE_TAG)\"}" > $(workspaces.output.path)/environment-workspace/data.json
+            if [ $(params.IMAGE_REGISTRY) != "NA" ]; then
+              echo "{\"APPLICATION_IMAGE_NAME\":\"$(params.IMAGE_REGISTRY)/$(params.REPO_NAME)\",\"APPLICATION_IMAGE_TAG\":\"$(params.IMAGE_TAG)\"}" > $(workspaces.output.path)/environment-workspace/data.json
+            else
+              echo "{\"APPLICATION_IMAGE_NAME\":\"${IMAGE_REGISTRY}/$(params.REPO_NAME)\",\"APPLICATION_IMAGE_TAG\":\"$(params.IMAGE_TAG)\"}" > $(workspaces.output.path)/environment-workspace/data.json          
+            fi
             # update image tag
             j2 $(workspaces.output.path)/$(params.PATH_TO_TRONADOR_FILE) $(workspaces.output.path)/environment-workspace/data.json --format=json > $(workspaces.output.path)/environment-workspace/tronador.yaml
             # parse chart value_overrides to a file
