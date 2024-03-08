@@ -5,7 +5,7 @@ kind: Task
 metadata:
   name: stakater-create-environment
   labels:
-    app.kubernetes.io/version: "0.0.17"
+    app.kubernetes.io/version: "0.0.18"
 spec:
   description: >-
     Create an Environment CR based on details found within the.tronador.yaml
